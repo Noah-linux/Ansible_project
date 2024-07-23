@@ -1,0 +1,65 @@
+---
+
+- hosts: all
+  become: true 
+  pre_tasks:
+ 
+  - name: install updates for ubuntu
+    tags: always
+    apt: 
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "ubuntu"
+    
+- hosts: [web_servers]
+  become: true
+  tasks:
+
+  - name: update repository index
+    apt:
+      update_cache: yes
+
+
+  - name: install apache2 package
+    tags: apache2,ubuntu
+    apt:  
+      name: apache2
+      state: latest  
+
+  - name: add php support for apache
+    apt: 
+      name: libapache2-mod-php
+      state: latest    
+
+ 
+- name: Install Samba on Ubuntu
+  hosts: [file_servers]
+  become: true  
+  
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+        
+    - name: Install Samba
+      tags: samba
+      apt:
+        name: samba
+        state: present
+
+- name: Install MariaDB Server on Ubuntu
+  hosts: [db_servers]
+  become: true
+  
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+        
+    - name: Install MariaDB Server
+      tags: mariadb,ubuntu
+      apt:
+        name: mariadb-server
+        state: present
+   
+
