@@ -29,7 +29,16 @@
   - name: add php support for apache
     apt: 
       name: libapache2-mod-php
-      state: latest    
+      state: latest  
+
+  - name: copy default html file for site
+    tags: apache2,httpd
+    copy:
+       src: default_site.html
+       dest: /var/www/html/index.html
+       owner: root
+       group: root
+       mode: 0644 
 
  
 - name: Install Samba on Ubuntu
@@ -46,6 +55,8 @@
       apt:
         name: samba
         state: present
+
+    
 
 - name: Install MariaDB Server on Ubuntu
   hosts: [db_servers]
