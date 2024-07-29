@@ -4,33 +4,13 @@
   become: true 
   pre_tasks:
  
-  - name: install updates for ubuntu
+  - name: update repo chche
     tags: always
-    apt: 
-      update_only: yes
+    apt:
       update_cache: yes
+      changed_when: false
     when: ansible_distribution == "ubuntu"
 
-  - name: create simone user
-    tags: always
-    user: 
-      name: simone
-      group: root    
-
-  - name: add ssh key for simone
-    tags: always
-    authorized_key:
-      user: simone
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJop/HCu+O7Ke9yt1FjZqZ0YQnES7/L/WKF2CQpeMGsA noa default"
-
-  - name: add sudoers file from simone
-    tags: always 
-    copy: 
-      src: sudore_simone
-      dest: /etc/sudoers.d/simone
-      owner: root
-      group: root
-      mode: 0440
 
     
 - hosts: [web_servers]
