@@ -4,116 +4,31 @@
   become: true 
   pre_tasks:
  
-  - name: install updates for ubuntu
+  - name: update repository index
     tags: always
     apt: 
-      update_only: yes
       update_cache: yes
     when: ansible_distribution == "ubuntu"
 
-  - name: create simone user
-    tags: always
-    user: 
-      name: simone
-      group: root    
-
-  - name: add ssh key for simone
-    tags: always
-    authorized_key:
-      user: simone
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJop/HCu+O7Ke9yt1FjZqZ0YQnES7/L/WKF2CQpeMGsA noa default"
-
-  - name: add sudoers file from simone
-    tags: always 
-    copy: 
-      src: sudore_simone
-      dest: /etc/sudoers.d/simone
-      owner: root
-      group: root
-      mode: 0440
-
-    
-- hosts: [web_servers]
-  become: true
-  tasks:
-
-  - name: update repository index
-    apt:
-      update_cache: yes
-
-
-  - name: install apache2 package
-    tags: apache2,ubuntu
-    apt:  
-      name: apache2
-      state: latest  
-
-  - name: add php support for apache
-    apt: 
-      name: libapache2-mod-php
-      state: latest  
-  
-  - name : start apache
-    service:
-     name: apache2
-     state: started 
-     enabled: yes
-
-
-  - name: copy default html file for site
-    tags: apache2,httpd
-    copy:
-       src: default_site.html
-       dest: /var/www/html/index.html
-       owner: root
-       group: root
-       mode: 0644 
-
- 
-- name: Install Samba on Ubuntu
-  hosts: [file_servers]
-  become: true  
-  
-  tasks:
-    - name: Update apt package cache
-      apt:
-        update_cache: yes
-        
-    - name: Install Samba
-      tags: samba
-      apt:
-        name: samba
-        state: present
-
-    
-
-- name: Install MariaDB Server on Ubuntu
-  hosts: [db_servers]
-  become: true
-  
-  tasks:
-    - name: Update apt package cache
-      apt:
-        update_cache: yes
-        
-    - name: Install MariaDB Server
-      tags: mariadb,ubuntu
-      apt:
-        name: mariadb-server
-        state: present
-   
-- hosts: [db_servers]
+- hosts: all
   become: true 
-  tasks:
-    - name: install unzip
-      package:
-         name: unzip
+  roles:
+    - base   
 
-    - name: install terraform
-      unarchive:
-        src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
-        dest: /usr/local/bin
-        remote_src: yes
-        mode: 0755
-        owner: root
-        group: root   
+- hosts: web_servers
+  become: true 
+  roles:
+    - web_servers 
+
+- hosts: db_servers
+  become: true 
+  roles:
+    - db_servers
+
+- hosts: file_servers
+  become: true 
+  roles:
+    - file_servers
+
+
+  
